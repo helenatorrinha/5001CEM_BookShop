@@ -5,14 +5,16 @@
     <link href="{{ url_for('static', filename='css/login_style.css') }}" rel="stylesheet" type="text/css" />
 </head>
 <body>
-    <h1>BookShop - Login</h1>
     <div class="login"> 
-    <form action="{{page}}" method="post">
-      <input type="text" id="username" name="username" placeholder="Username"><br>
-      <input type="password" id="password" name="password" placeholder="Password"><br><br>
-      <input type="submit" value="LOGIN">
-      <p>{{error}}</p>
-    </form>
-    
+        <h1>BookShop</h1>
+        <form action="{{page}}" method="post">
+          <input type="text" id="username" name="username" placeholder="Username">
+          <input type="password" id="password" name="password" placeholder="Password">
+          <input type="submit" value="LOGIN">
+          <a href="/register">New user? Create an account!</a>
+          <p class="error">{{error}}</p>
+          <p class="message">{{message}}</p>
+        </form>
+    </div>
 </body>
 </html>

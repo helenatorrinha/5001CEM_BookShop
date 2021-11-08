@@ -51,6 +51,16 @@ def login():
 def show_the_login_form():
     return render_template('login.html',page=url_for('login'))
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        if add_accounts(request.form['username'], request.form['password']):
+            return render_template('login.html',page=url_for('login'), message='Account added.')
+        else:
+            return render_template('register.html',page=url_for('register'), error='Invalid account.')
+    else:
+        return render_template('register.html',page=url_for('register'))
+
 @app.route('/home')
 @login_required
 def homepage():
@@ -59,7 +69,7 @@ def homepage():
 @app.route('/add_stock', methods=['GET', 'POST'])
 def add_stock():
     if request.method == 'POST':
-        
+        picture = upload_file(request.files, app.config['UPLOAD_FOLDER'])
         data = dict(request.form)
         #https://stackoverflow.com/questions/40414526/how-to-read-multipart-form-data-in-flaskpicture = upload_file(request.files, app.config['UPLOAD_FOLDER'])
         if add_books(data['isbn'], data['name'], data['author'], data['date'], data['description'], picture, data['quantityRange'], data['retailRange'], data['tradeRange']):

@@ -27,3 +27,17 @@ def add_books(isbn, name, author, date, description, picture, quantity, retail_p
         return True
     except Exception:
         traceback.print_exc()
+        
+def add_accounts(username, password):
+    try:
+        con = sqlite3.connect('bookshop.db')
+        cur = con.cursor()
+        cur.execute("SELECT count(*) FROM users WHERE username=?;", (username,))
+        if(int(cur.fetchone()[0]))>0:                                               
+            return False
+        else:
+            cur.execute("INSERT INTO users (username, password, type) VALUES (?, ?, ?);", (username, password_encode(password),"customer"))
+            con.commit()
+        return True
+    except Exception:
+        traceback.print_exc()

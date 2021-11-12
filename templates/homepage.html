@@ -5,7 +5,30 @@
     <link href="{{ url_for('static', filename='css/homepage_style.css') }}" rel="stylesheet" type="text/css" />
 </head>
 <body>
-    {% include 'partials/header.html' %}
+    <header> 
+        <h1>Homepage</h1>
+        <!--https://stackoverflow.com/questions/22655031/jinja2-how-to-put-a-block-in-an-if-statement-->
+        {% if type == "customer" %}
+            {% if 'cart_books' in session %}
+                {{session["total_quantity"]}}
+                <a href="/shopping_cart">
+                    <img src="static/images/shopping-cart.png" alt="Shopping Cart" width="30" height="30">
+                </a>
+                {{session["total_price"]}}
+            {% else: %}
+                <p>0</p>
+                <img src="static/images/shopping-cart.png" alt="Shopping Cart" width="30" height="30">
+                <p>0.00 £</p>
+            {% endif %}
+        {% else: %}
+            <button onclick="location.href = '/stock_level';">STOCK</button>
+        {% endif %}
+        
+        <a href="/logout">
+            <img src="static/images/logout.png" alt="Shopping Cart" width="30" height="30">
+        </a>
+        
+    </header>
     <!--https://stackoverflow.com/questions/51932277/print-values-of-array-of-arrays-in-flask/51932604-->
     {% for row in books %}
     <div>

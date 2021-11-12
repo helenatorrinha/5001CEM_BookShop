@@ -63,6 +63,12 @@ def register():
     else:
         return render_template('register.html',page=url_for('register'))
 
+@app.route('/logout')
+@login_required
+def logout():
+    session.clear()
+    return redirect(url_for('login'))    
+    
 @app.route('/homepage')
 @login_required
 def homepage():
@@ -71,6 +77,7 @@ def homepage():
     
 
 @app.route('/add_stock', methods=['GET', 'POST'])
+@login_required
 def add_stock():
     if request.method == 'POST':
         picture = upload_file(request.files, app.config['UPLOAD_FOLDER'])
@@ -82,3 +89,32 @@ def add_stock():
             return render_template('add_stock.html',page=url_for('add_stock'), error='Invalid book.')
     else:
         return render_template('add_stock.html',page=url_for('add_stock'))
+    
+@app.route('/add_to_cart/<isbn>/<retail_price>/<quantity>')
+@login_required
+def add_to_cart(isbn, retail_price, quantity):
+    if 'cart_books' in session:
+        if isbn in session["cart_books"]:
+            session["cart_books"][isbn] += 1 
+        else:
+            session["cart_books"][isbn] = 1
+            
+        session["total_price"] += float(retail_price)
+        session["total_quantity"] += 1
+    else:
+        session["cart_books"] = { isbn: 1 }
+        session["total_price"] = float(retail_price)
+        session["total_quantity"] = 1
+    print(session["cart_books"])
+    print(session["total_price"])
+    print(session["total_quantity"])
+    return redirect(url_for('homepage'))
+
+@app.route('/stock_level')
+@login_required
+def stock_level():
+    if session["type"] == "admin":
+        rows = display_books_stock_level()
+        return render_template('stock_level.html', books = rows)
+    return redirect(url_for('homepage'))
+        

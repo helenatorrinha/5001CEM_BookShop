@@ -1,0 +1,26 @@
+body  
+{  
+    margin: 0;  
+    padding: 0;    
+    background-color: #b5eeff;
+}
+
+h1{
+    font-family: system-ui;  
+    font-size: 40px;
+    text-align: center;
+}  
+
+div{
+    background: #57859e;
+    padding-top: 10px;
+}
+
+img{
+    margin-left: 40px
+}
+
+p{
+   font-family: system-ui;   
+}
+

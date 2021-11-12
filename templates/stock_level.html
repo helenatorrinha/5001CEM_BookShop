@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Stock Level</title>
+    <link href="{{ url_for('static', filename='css/stock_level_style.css') }}" rel="stylesheet" type="text/css" />
+</head>
+<body>
+    <h1>Stock Level</h1>
+    <button onclick="location.href = '/add_stock';">ADD BOOK</button>
+    <!--https://stackoverflow.com/questions/51932277/print-values-of-array-of-arrays-in-flask/51932604-->
+    {% for row in books %}
+    <div>
+        <img src="static/uploads/{{row[3]}}" alt="Book Picture" width="100" height="160">
+        <p>{{row[0]}}</p>
+        <p>{{row[1]}}</p> 
+        <p>Quantity in stock: {{row[2]}}</p> 
+    </div>
+    {% endfor %}
+</body>
+</html>

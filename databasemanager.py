@@ -47,7 +47,7 @@ def display_books_homepage():
     try:
         con = sqlite3.connect('bookshop.db')
         cur = con.cursor()
-        cur.execute("SELECT name, picture FROM books")
+        cur.execute("SELECT name, picture, isbn, retail_price, quantity FROM books")
         
         #https://www.sqlitetutorial.net/sqlite-python/sqlite-python-select/
         rows = cur.fetchall()

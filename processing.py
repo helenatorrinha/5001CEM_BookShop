@@ -11,3 +11,5 @@ def upload_file(picture, uploadfolder):
     path = os.path.join(uploadfolder, filename)
     file.save(path)
     return filename
+
+    

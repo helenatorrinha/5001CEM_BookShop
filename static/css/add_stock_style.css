@@ -1,0 +1,55 @@
+body  
+{  
+    margin: 0;  
+    padding: 0;    
+    background-color: #b5eeff;
+}
+
+h1{
+    font-family: system-ui;  
+    font-size: 40px;
+    text-align: center;
+}
+
+.add_stock {
+    margin: auto;
+    width: 500px; 
+}
+
+form {  
+        margin: auto;  
+        padding: 80px 0; 
+        background-color: white;
+        border-radius: 15px ;       
+}  
+
+label {
+    font-family: system-ui;  
+    font-size: 15px;
+    text-align: center;
+    display: block;
+}
+
+input, textarea {
+    display: block;
+    width: 300px;
+    text-align: center;
+    margin: auto;
+}
+
+input[type="submit"] {
+    display: block;
+    margin: auto;  
+    border: none;
+    font-size: 15px;
+    background-color: #b5eeff;
+    padding: 9px;
+}
+
+.error{
+    font-family: system-ui;
+    margin: 0;
+    margin-top: 20px;
+    text-align: center;
+    color: red;
+}

@@ -2,8 +2,29 @@
 <html lang="en">
 <head>
     <title>Homepage</title>
+    <link href="{{ url_for('static', filename='css/homepage_style.css') }}" rel="stylesheet" type="text/css" />
 </head>
 <body>
-    <h1>BookShop - Homepage</h1>   
+    <header> 
+        <h1>Homepage</h1>
+        
+        <!--https://stackoverflow.com/questions/22655031/jinja2-how-to-put-a-block-in-an-if-statement-->
+        {% if type == "admin" %}
+            <button onclick="location.href = '/add_stock';">STOCK</button>
+        {% endif %}
+        
+        {% if type == "customer" %}
+            <button onclick="location.href = '/add_stock';">STOCK</button>
+        {% endif %}
+    </header>
+    
+    
+    <!--https://stackoverflow.com/questions/51932277/print-values-of-array-of-arrays-in-flask/51932604-->
+    {% for row in books %}
+    <div>
+        <img src="static/uploads/{{row[1]}}" alt="Book Picture" width="100" height="160">
+        <p>{{row[0]}}</p>
+    </div>
+    {% endfor %}
 </body>
 </html>

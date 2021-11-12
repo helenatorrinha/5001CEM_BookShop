@@ -40,9 +40,11 @@ def loginredirect():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        if do_the_login(request.form['username'], request.form['password']):
+        type = do_the_login(request.form['username'], request.form['password'])
+        if type:
             session['username'] = request.form['username'] 
-            return render_template('homepage.html',page=url_for('homepage'))
+            session['type'] = type
+            return redirect(url_for('homepage'))
         else:
             return render_template('login.html',page=url_for('login'), error='Wrong username or password.')
     else:
@@ -61,10 +63,12 @@ def register():
     else:
         return render_template('register.html',page=url_for('register'))
 
-@app.route('/home')
+@app.route('/homepage')
 @login_required
 def homepage():
-    return render_template('homepage.html',page=url_for('homepage'))
+    rows = display_books_homepage()
+    return render_template('homepage.html', books = rows, type = session['type'])
+    
 
 @app.route('/add_stock', methods=['GET', 'POST'])
 def add_stock():

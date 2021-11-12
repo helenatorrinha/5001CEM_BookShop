@@ -12,9 +12,10 @@ def password_encode (password):
 def do_the_login(u,p):
     con = sqlite3.connect('bookshop.db')
     cur = con.cursor()
-    cur.execute("SELECT count(*) FROM users WHERE username=? AND password=?;", (u, password_encode(p)))
-    if(int(cur.fetchone()[0]))>0:                                               
-        return True
+    cur.execute("SELECT count(*), type FROM users WHERE username=? AND password=?;", (u, password_encode(p)))
+    results = cur.fetchone()
+    if(int(results[0]))>0:                                               
+        return results[1]
     else:
         return False
 
@@ -39,5 +40,27 @@ def add_accounts(username, password):
             cur.execute("INSERT INTO users (username, password, type) VALUES (?, ?, ?);", (username, password_encode(password),"customer"))
             con.commit()
         return True
+    except Exception:
+        traceback.print_exc()
+        
+def display_books_homepage():
+    try:
+        con = sqlite3.connect('bookshop.db')
+        cur = con.cursor()
+        cur.execute("SELECT name, picture FROM books")
+        
+        #https://www.sqlitetutorial.net/sqlite-python/sqlite-python-select/
+        rows = cur.fetchall()
+        return rows
+    except Exception:
+        traceback.print_exc()        
+        
+def display_books_stock_level():
+    try:
+        con = sqlite3.connect('bookshop.db')
+        cur = con.cursor()
+        cur.execute("SELECT name, isbn, quantity, picture FROM books")
+        rows = cur.fetchall()
+        return rows
     except Exception:
         traceback.print_exc()

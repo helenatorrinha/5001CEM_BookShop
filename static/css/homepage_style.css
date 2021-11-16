@@ -11,9 +11,13 @@ h1{
     text-align: center;
 }  
 
-div{
+.book{
     background: #57859e;
     padding-top: 10px;
+}
+
+.modal {
+    display: none;
 }
 
 img{

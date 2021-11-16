@@ -1,4 +1,4 @@
-#from markupsafe import escape
+#from markupsafe import escape  #I HAVE TO USE THIS
 import traceback
 import sqlite3
 import hashlib
@@ -60,6 +60,22 @@ def display_books_stock_level():
         con = sqlite3.connect('bookshop.db')
         cur = con.cursor()
         cur.execute("SELECT name, isbn, quantity, picture FROM books")
+        rows = cur.fetchall()
+        return rows
+    except Exception:
+        traceback.print_exc()
+        
+def display_books_checkout(cart):
+    try:
+        isbnQuery = ""
+        for isbn in cart.keys():
+            isbnQuery = isbnQuery + "'" + isbn + "', "
+        
+        print(isbnQuery[:-2])
+        
+        con = sqlite3.connect('bookshop.db')
+        cur = con.cursor()
+        cur.execute("SELECT name, isbn, quantity, picture FROM books WHERE isbn IN (" + isbnQuery[:-2] + ");")
         rows = cur.fetchall()
         return rows
     except Exception:

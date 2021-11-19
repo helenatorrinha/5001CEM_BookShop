@@ -71,7 +71,12 @@ def logout():
 @login_required
 def homepage():
     rows = display_books_homepage()
-    return render_template('homepage.html', books = rows, type = session['type'])
+    if 'error' in session:
+        error = session["error"]
+        session.pop("error")
+    else:
+        error=""
+    return render_template('homepage.html', books = rows, type = session['type'], error=error)
     
 
 @app.route('/add_stock', methods=['GET', 'POST'])
@@ -81,32 +86,40 @@ def add_stock():
         picture = upload_file(request.files, app.config['UPLOAD_FOLDER'])
         data = dict(request.form)
         #https://stackoverflow.com/questions/40414526/how-to-read-multipart-form-data-in-flaskpicture = upload_file(request.files, app.config['UPLOAD_FOLDER'])
-        if add_books(data['isbn'], data['name'], data['author'], data['date'], data['description'], picture, data['quantityRange'], data['retailRange'], data['tradeRange']):
+        result = add_books(data['isbn'], data['name'], data['author'], data['date'], data['description'], picture, data['quantityRange'], data['retailRange'], data['tradeRange'])        
+        if result == True:
             return redirect(url_for('homepage'))
         else:
-            return render_template('add_stock.html',page=url_for('add_stock'), error='Invalid book.')
+            return render_template('add_stock.html',page=url_for('add_stock'), error=result)
     else:
         return render_template('add_stock.html',page=url_for('add_stock'))
     
-@app.route('/add_to_cart/<isbn>/<retail_price>/<quantity>')
+@app.route('/add_to_cart/<isbn>/<retail_price>/<quantity>/<name>')
 @login_required
-def add_to_cart(isbn, retail_price, quantity):
-    if 'cart_books' in session:
-        if isbn in session["cart_books"]:
-            session["cart_books"][isbn][0] += 1 
+def add_to_cart(isbn, retail_price, quantity, name):
+    if 'cart_books' in session: #verifies if there is already books in the cart
+        if isbn in session["cart_books"]: #verifies if the book we are trying to add already exists in the cart
+            if int(quantity)>session["cart_books"][isbn][0]: #verifies if there are enough quantity of the book we want to add
+                session["cart_books"][isbn][0] += 1
+                session["total_price"] += float(retail_price)
+                session["total_quantity"] += 1
+            else:
+                session["error"] = "Book not available."
         else:
-            session["cart_books"][isbn] = [1, float(retail_price)]
-            
-        session["total_price"] += float(retail_price)
-        session["total_quantity"] += 1
+            session["cart_books"][isbn] = [1, float(retail_price), name]
+            session["total_price"] += float(retail_price)
+            session["total_quantity"] += 1
     else:
-        session["cart_books"] = { isbn: [1, float(retail_price)] }
+        session["cart_books"] = { isbn: [1, float(retail_price), name] }
         session["total_price"] = float(retail_price)
         session["total_quantity"] = 1
     print(session["cart_books"])
     print(session["total_price"])
     print(session["total_quantity"])
+    print (quantity)
+    print(session["cart_books"][isbn][0])
     return redirect(url_for('homepage'))
+
 
 @app.route('/stock_level')
 @login_required
@@ -116,7 +129,14 @@ def stock_level():
         return render_template('stock_level.html', books = rows)
     return redirect(url_for('homepage'))
 
-@app.route('/delete_book/<isbn>')
+
+@app.route('/delete_book_stock/<isbn>')
+@login_required
+def delete_book_stock(isbn):
+    delete_book_stock_level(isbn, app.config['UPLOAD_FOLDER'])
+    return redirect(url_for('stock_level'))
+
+@app.route('/delete_book_shopping_cart/<isbn>')
 @login_required
 def delete_book(isbn):
     session["cart_books"][isbn][0] -= 1 
@@ -131,6 +151,7 @@ def delete_book(isbn):
         session.pop("cart_books")
         session.pop("total_price")
     return redirect(url_for('homepage'))
+
 
 @app.route('/checkout')
 @login_required
@@ -147,7 +168,22 @@ def checkout():
 @app.route('/payment_successful')
 @login_required
 def payment_successful():
-    return render_template('payment_successful.html')
+    results = buy_books(session["cart_books"])
+    if results == True:
+        sell_books(session["cart_books"])
+        session.pop("total_quantity")
+        session.pop("cart_books")
+        session.pop("total_price")
+        return render_template('payment_successful.html')
+    else:
+        session["error"] = "The quantity you select for the following book(s) is no longer available, please add them again: " 
+        for book in results:
+            session["total_price"] -= session["cart_books"][book[0]][1] * session["cart_books"][book[0]][0]
+            session["total_quantity"] -= session["cart_books"][book[0]][0]
+            del session["cart_books"][book[0]]
+            session["error"] = session["error"] + book[1]
+        
+        return redirect(url_for('homepage'))
         
     
 

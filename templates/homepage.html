@@ -49,7 +49,7 @@
                         {% endfor %}
                         <p>{{session["cart_books"][row][1]}}£</p>
                         <p>Quantity: {{session["cart_books"][row][0]}}</p>
-                        <a href="/delete_book/{{row}}" >
+                        <a href="/delete_book_shopping_cart/{{row}}" >
                             <img src="static/images/delete_icon.png" alt="Delete icon" width="30" height="30">
                         </a>
                     </div>
@@ -80,13 +80,15 @@
         
     </header>
     
+    {{error}}
+    
     <!--https://stackoverflow.com/questions/51932277/print-values-of-array-of-arrays-in-flask/51932604-->
     {% for row in books %}
     <div class="book">
         <img src="static/uploads/{{row[1]}}" alt="Book Picture" width="100" height="160">
         <p>{{row[0]}}</p>
         {% if type == "customer" %}
-            <button onclick="location.href = '/add_to_cart/{{row[2]}}/{{row[3]}}/{{row[4]}}';">ADD TO CART</button>
+            <button onclick="location.href = '/add_to_cart/{{row[2]}}/{{row[3]}}/{{row[4]}}/{{row[0]}}';">ADD TO CART</button>
         {% endif %}
     </div>
     {% endfor %}

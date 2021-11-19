@@ -12,4 +12,11 @@ def upload_file(picture, uploadfolder):
     file.save(path)
     return filename
 
+def remove_picture(uploadfolder, picture): #function to delete a book picture from the db through the path
+    #https://stackoverflow.com/questions/26647248/how-to-delete-files-from-the-server-with-flask
+    print(uploadfolder)
+    print(picture)
+    os.remove(os.path.join(picture, uploadfolder))
+
+
     

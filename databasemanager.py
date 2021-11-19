@@ -30,6 +30,7 @@ def add_books(isbn, name, author, date, description, picture, quantity, retail_p
         else:
             cur.execute("INSERT INTO books (isbn, name, author, date, description, picture, quantity, retail_price, trade_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);", (isbn, name, author, date, description, picture, quantity, retail_price, trade_price))
             con.commit()
+            con.close()
             return True
     except Exception:
         traceback.print_exc()
@@ -45,6 +46,7 @@ def add_accounts(username, password):
         else:
             cur.execute("INSERT INTO users (username, password, type) VALUES (?, ?, ?);", (username, password_encode(password),"customer"))
             con.commit()
+            con.close()
         return True
     except Exception:
         traceback.print_exc()
@@ -53,7 +55,7 @@ def display_books_homepage():
     try:
         con = sqlite3.connect('bookshop.db')
         cur = con.cursor()
-        cur.execute("SELECT name, picture, isbn, retail_price, quantity FROM books WHERE quantity>0")
+        cur.execute("SELECT name, picture, isbn, retail_price, quantity, description FROM books WHERE quantity>0")
         
         #https://www.sqlitetutorial.net/sqlite-python/sqlite-python-select/
         rows = cur.fetchall()
@@ -76,9 +78,7 @@ def display_books_checkout(cart):
         isbnQuery = ""
         for isbn in cart.keys():
             isbnQuery = isbnQuery + "'" + isbn + "', "
-        
-        print(isbnQuery[:-2])
-        
+                
         con = sqlite3.connect('bookshop.db')
         cur = con.cursor()
         cur.execute("SELECT name, isbn, quantity, picture FROM books WHERE isbn IN (" + isbnQuery[:-2] + ");")
@@ -91,9 +91,9 @@ def buy_books (books):
     try:    
         error = []
         isError = False
+        con = sqlite3.connect('bookshop.db')
+        cur = con.cursor()
         for isbn in books.keys():
-            con = sqlite3.connect('bookshop.db')
-            cur = con.cursor()
             cur.execute("SELECT count(*), isbn FROM books WHERE isbn=? AND quantity>=?;", (isbn, books.get(isbn)[0]))
             book = cur.fetchone()
             if(int(book[0]))<=0: 
@@ -109,12 +109,11 @@ def buy_books (books):
         
 def sell_books(book):
     try:
+        con = sqlite3.connect('bookshop.db')
         for isbn in book.keys():
-            print(isbn)
-            con = sqlite3.connect('bookshop.db')
-            cur = con.cursor()
-            cur.execute("UPDATE books SET quantity = quantity - ? WHERE isbn = ?", (book.get(isbn)[0],isbn))
-            con.commit()
+            con.execute("UPDATE books SET quantity = quantity - ? WHERE isbn = ?", (book.get(isbn)[0],isbn))
+        con.commit()
+        con.close()
     except Exception:
         traceback.print_exc()
         
@@ -127,6 +126,17 @@ def delete_book_stock_level(isbn, upload_folder):
         picture = cur.fetchone()[0]
         cur.execute("DELETE FROM books WHERE isbn=?",(isbn,))
         con.commit()
+        con.close()
         remove_picture(picture, upload_folder)
     except Exception:
         traceback.print_exc()
+        
+
+def change_book_quantity(quant, isbn):
+    try:
+        con = sqlite3.connect('bookshop.db')
+        con.execute("UPDATE books SET quantity = ? WHERE isbn = ?", (quant,isbn))
+        con.commit()
+        con.close()
+    except Exception:
+        traceback.print_exc()        

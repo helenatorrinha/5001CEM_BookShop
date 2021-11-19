@@ -46,16 +46,20 @@ def login():
         else:
             return render_template('login.html',page=url_for('login'), error='Wrong username or password.')
     else:
-        return show_the_login_form()
-    
-def show_the_login_form():
-    return render_template('login.html',page=url_for('login'))
+        if 'success' in session:    #If register successfully
+            success = session["success"]
+            session.pop("success")
+        else:
+            success=""
+        return render_template('login.html',page=url_for('login'), success=success)
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         if add_accounts(request.form['username'], request.form['password']):
-            return render_template('login.html',page=url_for('login'), message='Account added.')
+            session["success"] = "Account added."
+            return redirect(url_for('login'))
         else:
             return render_template('register.html',page=url_for('register'), error='Invalid account.')
     else:
@@ -135,6 +139,15 @@ def stock_level():
 def delete_book_stock(isbn):
     delete_book_stock_level(isbn, app.config['UPLOAD_FOLDER'])
     return redirect(url_for('stock_level'))
+
+
+@app.route('/quantity_book_stock/<isbn>', methods=['GET', 'POST'])
+@login_required
+def quantity_book_stock(isbn):
+    if request.method == 'POST':
+        change_book_quantity(request.form['quant'], isbn)
+    return redirect(url_for('stock_level'))
+
 
 @app.route('/delete_book_shopping_cart/<isbn>')
 @login_required

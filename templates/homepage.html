@@ -84,13 +84,18 @@
     
     <!--https://stackoverflow.com/questions/51932277/print-values-of-array-of-arrays-in-flask/51932604-->
     {% for row in books %}
-    <div class="book">
-        <img src="static/uploads/{{row[1]}}" alt="Book Picture" width="100" height="160">
-        <p>{{row[0]}}</p>
+    <details class="book">
+        <summary>
+            <img src="static/uploads/{{row[1]}}" alt="Book Picture" width="100" height="160">
+            <p>{{row[0]}}</p>
+            {% if type == "customer" %}
+                <button onclick="location.href = '/add_to_cart/{{row[2]}}/{{row[3]}}/{{row[4]}}/{{row[0]}}';">ADD TO CART</button>
+            {% endif %}
+        </summary>
         {% if type == "customer" %}
-            <button onclick="location.href = '/add_to_cart/{{row[2]}}/{{row[3]}}/{{row[4]}}/{{row[0]}}';">ADD TO CART</button>
+            <p>{{row[5]}}</p>
         {% endif %}
-    </div>
+    </details>
     {% endfor %}
 
     

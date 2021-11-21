@@ -1,14 +1,10 @@
+@import url("header_style.css");
+
 body  
 {  
     margin: 0;  
     padding: 0;    
     background-color: #b5eeff;
-}
-
-h1{
-    font-family: system-ui;  
-    font-size: 40px;
-    text-align: center;
 }
 
 .add_stock {
@@ -18,7 +14,7 @@ h1{
 
 form {  
         margin: auto;  
-        padding: 80px 0; 
+        padding: 40px 0; 
         background-color: white;
         border-radius: 15px ;       
 }  

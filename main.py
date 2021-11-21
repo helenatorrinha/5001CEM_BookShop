@@ -80,7 +80,7 @@ def homepage():
         session.pop("error")
     else:
         error=""
-    return render_template('homepage.html', books = rows, type = session['type'], error=error)
+    return render_template('homepage.html', books = rows, type = session['type'], error=error, isShoppingCart=True)
     
 
 @app.route('/add_stock', methods=['GET', 'POST'])
@@ -98,24 +98,25 @@ def add_stock():
     else:
         return render_template('add_stock.html',page=url_for('add_stock'))
     
-@app.route('/add_to_cart/<isbn>/<retail_price>/<quantity>/<name>')
+@app.route('/add_to_cart/<isbn>/<quantity>/<name>')
 @login_required
-def add_to_cart(isbn, retail_price, quantity, name):
+def add_to_cart(isbn, quantity, name):
+    price = get_price(isbn)
     if 'cart_books' in session: #verifies if there is already books in the cart
         if isbn in session["cart_books"]: #verifies if the book we are trying to add already exists in the cart
             if int(quantity)>session["cart_books"][isbn][0]: #verifies if there are enough quantity of the book we want to add
                 session["cart_books"][isbn][0] += 1
-                session["total_price"] += float(retail_price)
+                session["total_price"] += price
                 session["total_quantity"] += 1
             else:
                 session["error"] = "Book not available."
         else:
-            session["cart_books"][isbn] = [1, float(retail_price), name]
-            session["total_price"] += float(retail_price)
+            session["cart_books"][isbn] = [1, price, name]
+            session["total_price"] += price
             session["total_quantity"] += 1
     else:
-        session["cart_books"] = { isbn: [1, float(retail_price), name] }
-        session["total_price"] = float(retail_price)
+        session["cart_books"] = { isbn: [1, price, name] }
+        session["total_price"] = price
         session["total_quantity"] = 1
     print(session["cart_books"])
     print(session["total_price"])
@@ -175,7 +176,7 @@ def checkout():
     else:
         session["postage_cost"] = 2 + (1*session["total_quantity"])
     session["total_cost"] = session["total_price"] + session["postage_cost"]
-    return render_template('checkout.html', books = rows)
+    return render_template('checkout.html', books = rows, type = session['type'])
     
 
 @app.route('/payment_successful')

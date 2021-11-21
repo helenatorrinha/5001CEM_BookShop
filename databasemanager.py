@@ -139,4 +139,15 @@ def change_book_quantity(quant, isbn):
         con.commit()
         con.close()
     except Exception:
-        traceback.print_exc()        
+        traceback.print_exc()  
+        
+    
+def get_price(isbn):
+    try:
+        con = sqlite3.connect('bookshop.db')
+        cur = con.cursor()
+        cur.execute("SELECT retail_price FROM books WHERE isbn = ?",(isbn,))
+        price = cur.fetchone()[0]
+        return price
+    except Exception:
+        traceback.print_exc()

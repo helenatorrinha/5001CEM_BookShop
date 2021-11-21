@@ -1,0 +1,100 @@
+<header> 
+        <!--https://stackoverflow.com/questions/22655031/jinja2-how-to-put-a-block-in-an-if-statement-->
+        {% if type == "customer" %}
+            <!--https://www.w3schools.com/bootstrap5/bootstrap_navbar.php and https://getbootstrap.com/docs/5.0/utilities/flex/-->
+            <nav class="bg-light mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <img src="static/images/BookShop.png" alt="BookShop" width="300" height="100">
+                    <div>
+                        <a class="page_route" style="margin-right:10px" href="/homepage">Homepage</a>
+                        {% if 'cart_books' in session %}
+                            <a class="page_route" href="/checkout">Checkout</a>
+                        {% endif %}
+                    </div>
+                    <div class="d-flex align-items-center text-center justify-content-end w-300">                      
+                        {% if isShoppingCart %}            
+                            {% if 'cart_books' in session %}
+                                    <div class="me-5">
+                                        <a data-bs-toggle="modal" data-bs-target="#shopping_cart" class="text-decoration-none text-black" href="#">    
+                                            <p class="mb-0">{{session["total_quantity"]}}</p>
+                                            <img src="static/images/shopping-cart.png" alt="Shopping Cart" width="30" height="30">
+                                            <p class="mb-0">{{session["total_price"]}}£</p>
+                                        </a>
+                                    </div>                        
+                                {% else: %}
+                                    <div class="me-5">       
+                                        <p class="mb-0">0</p>
+                                        <img src="static/images/shopping-cart.png" alt="Shopping Cart" width="30" height="30">
+                                        <p class="mb-0">0.00£</p>
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                        <a href="/logout" class="me-4">
+                            <img src="static/images/logout.png" alt="Shopping Cart" width="30" height="30">
+                        </a>
+                    </div>
+                </div>
+            </nav>
+            <p class="error">{{error}}</p>
+            <!-- The Modal for the shopping cart image from https://www.w3schools.com/bootstrap5/bootstrap_modal.php -->
+            <div class="modal" id="shopping_cart">
+              <div class="modal-dialog">
+                <div class="modal-content">
+
+                  <!-- Modal Header -->
+                  <div class="modal-header">
+                    <h4 class="modal-title">Shopping Cart</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                  </div>
+
+                  <!-- Modal body -->
+                  <div class="modal-body">
+                        {% for row in session["cart_books"] %}
+                        <div class="d-flex align-items-center">
+                            {% for line in books %}
+                                {% if row==line[2]  %}
+                                    <img class="me-1 mb-2" src="static/uploads/{{line[1]}}" alt="Book Picture" width="100" height="160">
+                                    <div>                                                                  
+                                        <p>{{line[0]}}</p>
+                                        <p>{{session["cart_books"][row][1]}}£</p>
+                                        <p>Quantity: {{session["cart_books"][row][0]}}</p>
+                                    </div>    
+                                    <a class="ms-auto" href="/delete_book_shopping_cart/{{row}}" >
+                                        <img src="static/images/delete_icon.png" alt="Delete icon" width="30" height="30">
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+                            
+                        </div>
+                        {% endfor %}
+                  </div>
+
+                  <!-- Modal footer -->
+                  <div class="footer-modal">
+                      <p class="text-end me-4">Total price: {{session["total_price"]}}£</p>
+                      <div class="footer-buttons d-flex justify-content-center align-items-center mb-3" >
+                          <button type="button" data-bs-dismiss="modal">Cancel and continue shopping.</button>
+                          <p class="mb-0 ms-1 me-1"> OR </p>
+                          <!--https://stackoverflow.com/questions/16562577/how-can-i-make-a-button-redirect-my-page-to-another-page-->
+                          <button onclick="location.href = '/checkout';">Proceed to checkout.</button>
+                      </div>
+                  </div>
+               </div>
+            </div>
+        </div>    
+            {% else: %}
+            <nav class="bg-light mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <img src="static/images/BookShop.png" alt="BookShop" width="300" height="100">
+                    <a class="page_route" style="margin-right:10px" href="/homepage">Homepage</a>
+                    <a class="page_route" style="margin-right:10px" href="/stock_level">Stock Level</a>
+                    <a class="page_route" style="margin-right:10px" href="/add_stock">Add Stock</a>
+                    <div class="d-flex align-items-center text-center justify-content-end w-300">                      
+                        <a href="/logout" class="me-4">
+                            <img src="static/images/logout.png" alt="Shopping Cart" width="30" height="30">
+                        </a>
+                    </div>
+                </div>
+            </nav>
+            {% endif %}
+</header>

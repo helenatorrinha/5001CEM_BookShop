@@ -8,96 +8,37 @@
     <link href="{{ url_for('static', filename='css/homepage_style.css') }}" rel="stylesheet" type="text/css" />
 </head>
 <body>
-    <header> 
-        <h1>Homepage</h1>
-        <!--https://stackoverflow.com/questions/22655031/jinja2-how-to-put-a-block-in-an-if-statement-->
+<!--https://stackoverflow.com/questions/9679038/is-it-possible-to-perform-includes-with-flask-->
+{% include 'header.html' %}
+   
+    <!--https://stackoverflow.com/questions/51932277/print-values-of-array-of-arrays-in-flask/51932604-->
+    {% for row in books %}
+    <div class="book d-flex align-items-center mb-3 ms-4 me-4">
+        <img src="static/uploads/{{row[1]}}" alt="Book Picture" width="100" height="160">
+        <p class="ms-3">{{row[0]}}</p>
         {% if type == "customer" %}
-            {% if 'cart_books' in session %}
-                {{session["total_quantity"]}}
-                <a data-bs-toggle="modal" data-bs-target="#shopping_cart">
-                    <img src="static/images/shopping-cart.png" alt="Shopping Cart" width="30" height="30">
-                </a>
-                <p>{{session["total_price"]}}£</p>
-            {% else: %}
-                <p>0</p>
-                <img src="static/images/shopping-cart.png" alt="Shopping Cart" width="30" height="30">
-                <p>0.00 £</p>
-            {% endif %}
-        
-        <!-- The Modal for the shopping cart image from https://www.w3schools.com/bootstrap5/bootstrap_modal.php -->
-        <div class="modal" id="shopping_cart">
+        <button class="ms-auto me-0" onclick="location.href = '/add_to_cart/{{row[2]}}/{{row[4]}}/{{row[0]}}';">ADD TO CART</button>
+        <button class="ms-1 me-4" type="button" data-bs-toggle="modal" data-bs-target="#details_modal{{row[2]}}">MORE DETAILS</button>
+        <div class="modal" id="details_modal{{row[2]}}">
           <div class="modal-dialog">
             <div class="modal-content">
 
               <!-- Modal Header -->
               <div class="modal-header">
-                <h4 class="modal-title">Shopping Cart</h4>
+                <h4 class="modal-title">Book Description</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
               </div>
-      
+
               <!-- Modal body -->
               <div class="modal-body">
-                    {% for row in session["cart_books"] %}
-                    <div>
-                        {% for line in books %}
-                            {% if row==line[2]  %}
-                            <div>
-                                <img src="static/uploads/{{line[1]}}" alt="Book Picture" width="100" height="160">
-                                <p>{{line[0]}}</p>
-                            </div>
-                            {% endif %}
-                        {% endfor %}
-                        <p>{{session["cart_books"][row][1]}}£</p>
-                        <p>Quantity: {{session["cart_books"][row][0]}}</p>
-                        <a href="/delete_book_shopping_cart/{{row}}" >
-                            <img src="static/images/delete_icon.png" alt="Delete icon" width="30" height="30">
-                        </a>
-                    </div>
-                    {% endfor %}
+                <p>{{row[5]}}</p>
               </div>
-
-              <!-- Modal footer -->
-              <div class="modal-footer">
-                  <p>{{session["total_price"]}}£</p>
-                  <button type="button" class="btn btn-outline-info" data-bs-dismiss="modal">Cancel and continue shopping.</button>
-                  <p>OR</p>
-                  <a class="btn btn-outline-info" href="/checkout">
-                      Proceed to checkout.
-                  </a>
-              </div>
-
             </div>
           </div>
-        </div>
-        
-        {% else: %}
-            <button onclick="location.href = '/stock_level';">STOCK</button>
+        </div>     
         {% endif %}
-        
-        <a href="/logout">
-            <img src="static/images/logout.png" alt="Shopping Cart" width="30" height="30">
-        </a>
-        
-    </header>
-    
-    {{error}}
-    
-    <!--https://stackoverflow.com/questions/51932277/print-values-of-array-of-arrays-in-flask/51932604-->
-    {% for row in books %}
-    <details class="book">
-        <summary>
-            <img src="static/uploads/{{row[1]}}" alt="Book Picture" width="100" height="160">
-            <p>{{row[0]}}</p>
-            {% if type == "customer" %}
-                <button onclick="location.href = '/add_to_cart/{{row[2]}}/{{row[3]}}/{{row[4]}}/{{row[0]}}';">ADD TO CART</button>
-            {% endif %}
-        </summary>
-        {% if type == "customer" %}
-            <p>{{row[5]}}</p>
-        {% endif %}
-    </details>
+     </div>
     {% endfor %}
 
-    
 </body>
 </html>

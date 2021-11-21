@@ -1,3 +1,5 @@
+@import url("header_style.css");
+
 body  
 {  
     margin: 0;  
@@ -5,22 +7,20 @@ body
     background-color: #b5eeff;
 }
 
-h1{
-    font-family: system-ui;  
-    font-size: 40px;
-    text-align: center;
-}  
-
-div{
-    background: #57859e;
-    padding-top: 10px;
-}
-
-img{
-    margin-left: 40px
-}
-
 p{
    font-family: system-ui;   
 }
 
+.book{
+    transition: background-color 1s ease;
+    background:rgba(87, 133, 158, 0.5);;
+}
+
+input[type="submit"], button {
+    display: block;
+    margin: auto;  
+    border: none;
+    font-size: 15px;
+    background-color: #b5eeff;
+    padding: 9px;
+}

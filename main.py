@@ -18,16 +18,16 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 @app.before_request
 def user_logged_in():
     user_id = session.get('username')
-    if user_id is None:
-        g.user = None
+    if user_id is None:     #if there is no session for the user (the user did’t sign in)
+        g.user = None       #set user to none
     else:
-        g.user='set'
+        g.user='set'        #set user to 'set'(the user logged in)
 
-def login_required(view):
+def login_required(view):       #function to verify if the user signed in
     @functools.wraps(view)
     def wrapped_view(**kwargs):
-        if g.user is None:
-            return redirect(url_for('login'))
+        if g.user is None:      #if the user doesnt have a sign in session 
+            return redirect(url_for('login'))       #the user is redirect to the login page
         return view(**kwargs)
     return wrapped_view
 
@@ -37,47 +37,47 @@ def loginredirect():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        type = do_the_login(request.form['username'], request.form['password'])
-        if type:
-            session['username'] = request.form['username'] 
-            session['type'] = type
-            return redirect(url_for('homepage'))
+    if request.method == 'POST':        
+        type = do_the_login(request.form['username'], request.form['password'])     #check if the user exists and if so returns the type
+        if type:        #if type is none     
+            session['username'] = request.form['username']      #saves the username used in the login in a session
+            session['type'] = type      #saves the type of user according to the account that did the login in a session
+            return redirect(url_for('homepage'))        #goes to the homepage
         else:
-            return render_template('login.html',page=url_for('login'), error='Wrong username or password.')
-    else:
-        if 'success' in session:    #If register successfully
-            success = session["success"]
-            session.pop("success")
+            return render_template('login.html',page=url_for('login'), error='Wrong username or password.')     #the username or password are not correct so it displays an error message in the login page
+    else:       #if it's method 'GET'
+        if 'success' in session:        #If the user registered successfully and was redirected to the login page
+            success = session["success"]        #there will be a session with a success message
+            session.pop("success")      #delete the session to avoid repeting the success message
         else:
-            success=""
+            success=""      
         return render_template('login.html',page=url_for('login'), success=success)
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        if add_accounts(request.form['username'], request.form['password']):
-            session["success"] = "Account added."
+        if add_accounts(request.form['username'], request.form['password']):        #checks if the username already exists and adds the account to the db if it doesn't exist using the add_accounts function
+            session["success"] = "Account added."       #message that will be displayed in the login      
             return redirect(url_for('login'))
-        else:
-            return render_template('register.html',page=url_for('register'), error='Invalid account.')
+        else:       #if the username already exists
+            return render_template('register.html',page=url_for('register'), error='Invalid account.')      #shows an error message
     else:
         return render_template('register.html',page=url_for('register'))
 
 @app.route('/logout')
 @login_required
 def logout():
-    session.clear()
-    return redirect(url_for('login'))    
+    session.clear()     #deletes all the existing sessions
+    return redirect(url_for('login'))       #goes to the login page
     
 @app.route('/homepage')
 @login_required
 def homepage():
-    rows = display_books_homepage()
-    if 'error' in session:
+    rows = display_books_homepage()     #uses a function from the databasemanager.py file to get the books information 
+    if 'error' in session:      #if a function sends a session error to the homepage      
         error = session["error"]
-        session.pop("error")
+        session.pop("error")        #deletes the error
     else:
         error=""
     return render_template('homepage.html', books = rows, type = session['type'], error=error, isShoppingCart=True)
@@ -86,58 +86,62 @@ def homepage():
 @app.route('/add_stock', methods=['GET', 'POST'])
 @login_required
 def add_stock():
+    if session["type"] == "customer":       #only an admin is able to see this route so if a user tries to access it he will be redirected to the homepage
+        return redirect(url_for('homepage'))
+    
     if request.method == 'POST':
-        picture = upload_file(request.files, app.config['UPLOAD_FOLDER'])
-        data = dict(request.form)
-        #https://stackoverflow.com/questions/40414526/how-to-read-multipart-form-data-in-flaskpicture = upload_file(request.files, app.config['UPLOAD_FOLDER'])
-        result = add_books(data['isbn'], data['name'], data['author'], data['date'], data['description'], picture, data['quantityRange'], data['retailRange'], data['tradeRange'])        
-        if result == True:
+        picture = upload_file(request.files, app.config['UPLOAD_FOLDER'])       #stores the picture and retuns its name
+        data = dict(request.form)       #stores the data from the form
+        #code inspired in https://stackoverflow.com/questions/40414526/how-to-read-multipart-form-data-in-flask
+        result = add_books(data['isbn'], data['name'], data['author'], data['date'], data['description'], picture, data['quantityRange'], data['retailRange'], data['tradeRange'])      #adds the book with the form's values        
+        if result == True:      #if all the fields are correct the user will go to the Homepage
             return redirect(url_for('homepage'))
         else:
-            return render_template('add_stock.html',page=url_for('add_stock'), error=result)
+            return render_template('add_stock.html',page=url_for('add_stock'), error=result)        #if there is any issue in the result it will be displayed an error message in the Add Stock page
     else:
         return render_template('add_stock.html',page=url_for('add_stock'))
     
-@app.route('/add_to_cart/<isbn>/<quantity>/<name>')
+@app.route('/add_to_cart/<isbn>/<quantity>/<name>')     #function used to send info(isbn-13 number, quantity in stock and the name of the book) to the Shopping cart
 @login_required
 def add_to_cart(isbn, quantity, name):
-    price = get_price(isbn)
-    if 'cart_books' in session: #verifies if there is already books in the cart
-        if isbn in session["cart_books"]: #verifies if the book we are trying to add already exists in the cart
-            if int(quantity)>session["cart_books"][isbn][0]: #verifies if there are enough quantity of the book we want to add
-                session["cart_books"][isbn][0] += 1
-                session["total_price"] += price
-                session["total_quantity"] += 1
+    if session["type"] == "admin":      #page not available to admins
+        return redirect(url_for('homepage'))
+    
+    price = get_price(isbn)     #gets the book price from the db
+    if 'cart_books' in session:     #verifies if there is already books in the cart
+        if isbn in session["cart_books"]:       #verifies if the book we are trying to add already exists in the cart
+            if int(quantity)>session["cart_books"][isbn][0]:        #verifies if there are enough quantity of the book we want to add
+                session["cart_books"][isbn][0] += 1     #adds 1 to the quantity of that book in the cart
+                session["total_price"] += price     #adds the price of the book to the total price
+                session["total_quantity"] += 1      #adds 1 to the total_quantity
             else:
-                session["error"] = "Book not available."
-        else:
-            session["cart_books"][isbn] = [1, price, name]
-            session["total_price"] += price
-            session["total_quantity"] += 1
-    else:
-        session["cart_books"] = { isbn: [1, price, name] }
-        session["total_price"] = price
-        session["total_quantity"] = 1
-    print(session["cart_books"])
-    print(session["total_price"])
-    print(session["total_quantity"])
-    print (quantity)
-    print(session["cart_books"][isbn][0])
+                session["error"] = "Book not available."        #error message when there are not enough books in stock
+        else:       #if the book is not in the cart yet
+            session["cart_books"][isbn] = [1, price, name]      #sets the quantity of that book in the cart as 1
+            session["total_price"] += price     #sets this book price as the total price
+            session["total_quantity"] += 1      #sets the total quantity of books in the cart as 1
+    else:       #if there aren't books in the cart
+        session["cart_books"] = { isbn: [1, price, name] }      #sets the quantity of that book in the cart as 1
+        session["total_price"] = price      #sets this book price as the total price
+        session["total_quantity"] = 1       #sets the total quantity of books in the cart as 1
     return redirect(url_for('homepage'))
 
 
 @app.route('/stock_level')
 @login_required
 def stock_level():
-    if session["type"] == "admin":
-        rows = display_books_stock_level()
-        return render_template('stock_level.html', books = rows)
-    return redirect(url_for('homepage'))
-
+    if session["type"] == "customer":       #page not available for customers
+        return redirect(url_for('homepage'))
+    
+    rows = display_books_stock_level()      #uses a function from the databasemanager.py file to get the books information 
+    return render_template('stock_level.html', books = rows)
 
 @app.route('/delete_book_stock/<isbn>')
 @login_required
 def delete_book_stock(isbn):
+    if session["type"] == "customer":       #page not available for customers       
+        return redirect(url_for('homepage'))
+    
     delete_book_stock_level(isbn, app.config['UPLOAD_FOLDER'])
     return redirect(url_for('stock_level'))
 
@@ -145,57 +149,69 @@ def delete_book_stock(isbn):
 @app.route('/quantity_book_stock/<isbn>', methods=['GET', 'POST'])
 @login_required
 def quantity_book_stock(isbn):
+    if session["type"] == "customer":       #page not available for customers
+        return redirect(url_for('homepage'))
+    
     if request.method == 'POST':
-        change_book_quantity(request.form['quant'], isbn)
+        change_book_quantity(request.form['quant'], isbn)       #function to change the book quantity in stock
     return redirect(url_for('stock_level'))
 
 
 @app.route('/delete_book_shopping_cart/<isbn>')
 @login_required
 def delete_book(isbn):
-    session["cart_books"][isbn][0] -= 1 
-    session["total_price"] -= session["cart_books"][isbn][1]
-    session["total_quantity"] -= 1
+    if session["type"] == "admin":      #page not available for admins
+        return redirect(url_for('homepage'))
     
-    if session["cart_books"][isbn][0]==0:
-        del session["cart_books"][isbn]
+    session["cart_books"][isbn][0] -= 1     #reduces 1 to the quantity of that book in the cart
+    session["total_price"] -= session["cart_books"][isbn][1]        #subtracts the book price from the total price
+    session["total_quantity"] -= 1      #reduces 1 to the total quantity books in the cart
     
-    if session["total_quantity"]==0:
-        session.pop("total_quantity")
-        session.pop("cart_books")
-        session.pop("total_price")
+    if session["cart_books"][isbn][0]==0:       #if the quantity of that book is 0 
+        del session["cart_books"][isbn]     #deletes the session that keeps that book
+    
+    if session["total_quantity"]==0:        #if there are no books in the cart
+        session.pop("total_quantity")       #deletes the session that keeps the total quantity of books in the cart
+        session.pop("cart_books")       #deletes the session that of books in the cart
+        session.pop("total_price")      #deletes the session that keeps the total price of the books in the cart
     return redirect(url_for('homepage'))
 
 
 @app.route('/checkout')
 @login_required
 def checkout():
-    rows = display_books_checkout(session["cart_books"])
-    if session["total_quantity"] == 1:
-        session["postage_cost"] = 3
+    if session["type"] == "admin":      #page not available for admins
+        return redirect(url_for('homepage'))
+    
+    rows = display_books_checkout(session["cart_books"])        ##uses a function from the databasemanager.py file to get the books information 
+    if session["total_quantity"] == 1:      #if the cart only has 1 book
+        session["postage_cost"] = 3     #the postage cost is 3 pounds
     else:
-        session["postage_cost"] = 2 + (1*session["total_quantity"])
-    session["total_cost"] = session["total_price"] + session["postage_cost"]
+        session["postage_cost"] = 2 + (1*session["total_quantity"])     #if the shopping cart has more than 1 book 
+    session["total_cost"] = session["total_price"] + session["postage_cost"]        #sets the total cost as the sum of the cart total price and the postage cost
     return render_template('checkout.html', books = rows, type = session['type'])
     
 
 @app.route('/payment_successful')
 @login_required
 def payment_successful():
-    results = buy_books(session["cart_books"])
-    if results == True:
-        sell_books(session["cart_books"])
-        session.pop("total_quantity")
-        session.pop("cart_books")
-        session.pop("total_price")
+    if session["type"] == "admin":      #page not available for admins
+        return redirect(url_for('homepage'))
+    
+    results = buy_books(session["cart_books"])      #verifies if there are enough books in the db 
+    if results == True:     #if there are enough books
+        sell_books(session["cart_books"])       #calls a function to reduce the stock quantity of the books in the cart
+        session.pop("total_quantity")       #deletes the session that keeps the total quantity of books in the cart
+        session.pop("cart_books")       #deletes the session that of books in the cart
+        session.pop("total_price")      #deletes the session that keeps the total price of the books in the cart
         return render_template('payment_successful.html')
     else:
         session["error"] = "The quantity you select for the following book(s) is no longer available, please add them again: " 
-        for book in results:
-            session["total_price"] -= session["cart_books"][book[0]][1] * session["cart_books"][book[0]][0]
-            session["total_quantity"] -= session["cart_books"][book[0]][0]
-            del session["cart_books"][book[0]]
-            session["error"] = session["error"] + book[1]
+        for book in results:        #to show the books that are no longer in stock and removing them from the shopping cart
+            session["total_price"] -= session["cart_books"][book[0]][1] * session["cart_books"][book[0]][0]     #updates the quantity of these books in the cart   
+            session["total_quantity"] -= session["cart_books"][book[0]][0]      #updates the total quantity of books in the cart
+            del session["cart_books"][book[0]]      #deletes from the cart the books that are not available  
+            session["error"] = session["error"] + book[1] + " "       #error message with the names of the missing books
         
         return redirect(url_for('homepage'))
         

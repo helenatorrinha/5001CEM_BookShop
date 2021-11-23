@@ -1,5 +1,4 @@
 <header> 
-        <!--https://stackoverflow.com/questions/22655031/jinja2-how-to-put-a-block-in-an-if-statement-->
         {% if type == "customer" %}
             <!--https://www.w3schools.com/bootstrap5/bootstrap_navbar.php and https://getbootstrap.com/docs/5.0/utilities/flex/-->
             <nav class="bg-light mb-4">
@@ -7,13 +6,13 @@
                     <img src="static/images/BookShop.png" alt="BookShop" width="300" height="100">
                     <div>
                         <a class="page_route" style="margin-right:10px" href="/homepage">Homepage</a>
-                        {% if 'cart_books' in session %}
+                        {% if 'cart_books' in session %}         <!--If there is any book in the shopping cart-->
                             <a class="page_route" href="/checkout">Checkout</a>
                         {% endif %}
                     </div>
                     <div class="d-flex align-items-center text-center justify-content-end w-300">                      
-                        {% if isShoppingCart %}            
-                            {% if 'cart_books' in session %}
+                        {% if isShoppingCart %}         <!--If the user is a customer due that we want to show the shopping cart-->            
+                            {% if 'cart_books' in session %}         <!--If there is any book in the shopping cart-->
                                     <div class="me-5">
                                         <a data-bs-toggle="modal" data-bs-target="#shopping_cart" class="text-decoration-none text-black" href="#">    
                                             <p class="mb-0">{{session["total_quantity"]}}</p>
@@ -21,7 +20,7 @@
                                             <p class="mb-0">{{session["total_price"]}}£</p>
                                         </a>
                                     </div>                        
-                                {% else: %}
+                                {% else: %}         <!--If there are no book in the shopping cart-->
                                     <div class="me-5">       
                                         <p class="mb-0">0</p>
                                         <img src="static/images/shopping-cart.png" alt="Shopping Cart" width="30" height="30">
@@ -49,10 +48,10 @@
 
                   <!-- Modal body -->
                   <div class="modal-body">
-                        {% for row in session["cart_books"] %}
+                        {% for row in session["cart_books"] %}         <!--go through all the cart books-->         
                         <div class="d-flex align-items-center">
-                            {% for line in books %}
-                                {% if row==line[2]  %}
+                            {% for line in books %}         <!--go through all the books in the homepage-->        
+                                {% if row==line[2]  %}         <!--if the isbn’s are the same -->
                                     <img class="me-1 mb-2" src="static/uploads/{{line[1]}}" alt="Book Picture" width="100" height="160">
                                     <div>                                                                  
                                         <p>{{line[0]}}</p>
@@ -68,21 +67,21 @@
                         </div>
                         {% endfor %}
                   </div>
-
                   <!-- Modal footer -->
                   <div class="footer-modal">
                       <p class="text-end me-4">Total price: {{session["total_price"]}}£</p>
                       <div class="footer-buttons d-flex justify-content-center align-items-center mb-3" >
                           <button type="button" data-bs-dismiss="modal">Cancel and continue shopping.</button>
                           <p class="mb-0 ms-1 me-1"> OR </p>
-                          <!--https://stackoverflow.com/questions/16562577/how-can-i-make-a-button-redirect-my-page-to-another-page-->
+                          
+                          <!--code from https://stackoverflow.com/questions/16562577/how-can-i-make-a-button-redirect-my-page-to-another-page-->
                           <button onclick="location.href = '/checkout';">Proceed to checkout.</button>
                       </div>
                   </div>
                </div>
             </div>
         </div>    
-            {% else: %}
+            {% else: %}         <!--for the admins-->
             <nav class="bg-light mb-4">
                 <div class="d-flex justify-content-between align-items-center">
                     <img src="static/images/BookShop.png" alt="BookShop" width="300" height="100">

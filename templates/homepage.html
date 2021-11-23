@@ -8,27 +8,30 @@
     <link href="{{ url_for('static', filename='css/homepage_style.css') }}" rel="stylesheet" type="text/css" />
 </head>
 <body>
+    
 <!--https://stackoverflow.com/questions/9679038/is-it-possible-to-perform-includes-with-flask-->
 {% include 'header.html' %}
    
-    <!--https://stackoverflow.com/questions/51932277/print-values-of-array-of-arrays-in-flask/51932604-->
-    {% for row in books %}
+    <!--code from https://stackoverflow.com/questions/51932277/print-values-of-array-of-arrays-in-flask/51932604-->
+    {% for row in books %}         <!--to get the book's info-->
     <div class="book d-flex align-items-center mb-3 ms-4 me-4">
         <img src="static/uploads/{{row[1]}}" alt="Book Picture" width="100" height="160">
         <p class="ms-3">{{row[0]}}</p>
-        {% if type == "customer" %}
+        
+        <!--Features for customers-->
+        {% if type == "customer" %}         
         <button class="ms-auto me-0" onclick="location.href = '/add_to_cart/{{row[2]}}/{{row[4]}}/{{row[0]}}';">ADD TO CART</button>
         <button class="ms-1 me-4" type="button" data-bs-toggle="modal" data-bs-target="#details_modal{{row[2]}}">MORE DETAILS</button>
-        <div class="modal" id="details_modal{{row[2]}}">
+        
+        <!--Modal with the book description-->
+        <div class="modal" id="details_modal{{row[2]}}">         
           <div class="modal-dialog">
             <div class="modal-content">
-
               <!-- Modal Header -->
               <div class="modal-header">
                 <h4 class="modal-title">Book Description</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
               </div>
-
               <!-- Modal body -->
               <div class="modal-body">
                 <p>{{row[5]}}</p>

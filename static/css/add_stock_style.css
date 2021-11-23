@@ -1,12 +1,5 @@
 @import url("header_style.css");
 
-body  
-{  
-    margin: 0;  
-    padding: 0;    
-    background-color: #b5eeff;
-}
-
 .add_stock {
     margin: auto;
     width: 500px; 
@@ -33,19 +26,6 @@ input, textarea {
     margin: auto;
 }
 
-input[type="submit"] {
-    display: block;
-    margin: auto;  
-    border: none;
-    font-size: 15px;
-    background-color: #b5eeff;
-    padding: 9px;
-}
 
-.error{
-    font-family: system-ui;
-    margin: 0;
-    margin-top: 20px;
-    text-align: center;
-    color: red;
-}
+
+

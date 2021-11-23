@@ -1,41 +1,13 @@
 /*https://www.w3schools.com/cssref/pr_import_rule.asp*/
 @import url("header_style.css");
 
-body  
-{  
-    margin: 0;  
-    padding: 0;    
-    background-color: #b5eeff;
-}
-
-.book{
-    transition: background-color 1s ease;
-    background:rgba(87, 133, 158, 0.5);;
-}
-
 .modal {
     display: none;
-}
-
-p{
-   font-family: system-ui;   
 }
 
 .footer-modal {
     border-top: 1px solid #dee2e6;
 }
 
-.footer-buttons {
-
-}
-
-input[type="submit"], button {
-    display: block;
-    margin: auto;  
-    border: none;
-    font-size: 15px;
-    background-color: #b5eeff;
-    padding: 9px;
-}
     
     

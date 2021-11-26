@@ -12,29 +12,13 @@ def password_encode (password):     #function to encode the user's password
 def do_the_login(u,p):      #function to verify if a user is in the db
     con = sqlite3.connect('bookshop.db')        #connects with the db
     cur = con.cursor()
-    cur.execute("SELECT count(*), type FROM users WHERE username=? AND password=?;", (u, password_encode(p)))       #query to check if the account exists and returns the type of account if it exists
+    cur.execute("SELECT count(*), type FROM users WHERE username=? AND password=?;", (u, password_encode(p)))       #query to check if the account exists and that, in that case, returns the type of account 
     results = cur.fetchone()        #gets the first row
-    if(int(results[0]))>0:      #if the first value of the row (count (*)) is bigger than 0 (the user exists)                                          
+    if(int(results[0]))>0:      #if the user exists                                          
         return results[1]       #returns the type of the user
     else:       #the user doesn't exist
         return False
 
-def add_books(isbn, name, author, date, description, picture, quantity, retail_price, trade_price):     #add books into the db
-    try:
-        con = sqlite3.connect('bookshop.db')
-        cur = con.cursor()
-        cur.execute("SELECT count(*) FROM books WHERE isbn=?;", (isbn,))        #returns the first row with that input
-        if(int(cur.fetchone()[0]))>0:       #if the a book with that isbn already exists                                               
-            return "The book already exists."
-        else:       #if the a book with that isbn doesn't exist
-            cur.execute("INSERT INTO books (isbn, name, author, date, description, picture, quantity, retail_price, trade_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);", (isbn, name, author, date, description, picture, quantity, retail_price, trade_price))        
-            con.commit()
-            con.close()
-            return True
-    except Exception:       #when there is an issue
-        traceback.print_exc()
-        return "Invalid book."
-        
 def add_accounts(username, password):
     try:
         con = sqlite3.connect('bookshop.db')
@@ -48,20 +32,21 @@ def add_accounts(username, password):
             con.close()
         return True
     except Exception:
-        traceback.print_exc()
+        traceback.print_exc() 
         
 def display_books_homepage():       #function that returns the books for the Homepage
     try:
         con = sqlite3.connect('bookshop.db')
+        #code based on https://www.sqlitetutorial.net/sqlite-python/sqlite-python-select/
         cur = con.cursor()
-        cur.execute("SELECT name, picture, isbn, retail_price, quantity, description FROM books WHERE quantity>0")
+        cur.execute("SELECT name, picture, isbn, retail_price, quantity, description FROM books WHERE quantity>0")      #gets the name, picture, isbn, retail_price, quantity, description that have positive quantity
         
-        #https://www.sqlitetutorial.net/sqlite-python/sqlite-python-select/
         rows = cur.fetchall()       #gets all rows
         return rows
     except Exception:
-        traceback.print_exc()        
-        
+        traceback.print_exc() 
+    
+
 def display_books_stock_level():        #function that books for the Stock Level page
     try:
         con = sqlite3.connect('bookshop.db')
@@ -72,51 +57,7 @@ def display_books_stock_level():        #function that books for the Stock Level
     except Exception:
         traceback.print_exc()
         
-def display_books_checkout(cart):       #function that returns books for the Checkout page
-    try:
-        isbnQuery = ""
-        for isbn in cart.keys():        #concatenate all the isbn's to be able to select their info in the query
-            isbnQuery = isbnQuery + "'" + isbn + "', "
-                
-        con = sqlite3.connect('bookshop.db')
-        cur = con.cursor()
-        cur.execute("SELECT name, isbn, quantity, picture FROM books WHERE isbn IN (" + isbnQuery[:-2] + ");")
-        rows = cur.fetchall()
-        return rows
-    except Exception:
-        traceback.print_exc()
         
-def buy_books (books):      #function that verifies all books to check if there are enough quantity in the db to buy
-    try:    
-        error = []
-        isError = False
-        con = sqlite3.connect('bookshop.db')
-        cur = con.cursor()
-        for isbn in books.keys():
-            cur.execute("SELECT count(*), isbn FROM books WHERE isbn=? AND quantity>=?;", (isbn, books.get(isbn)[0]))
-            book = cur.fetchone()       #gets the first row
-            if(int(book[0]))<=0:        #if the book doen't have the necessary quantity of that book, the count is 0, so an error is raised 
-                isError = True
-                error.append([isbn, books.get(isbn)[2]])        #adds the book info into the error
-        
-        if isError: #If there is an error
-            return error        #returns an array of arrays with the books that didn't have enough quantity
-        else:
-            return True
-    except Exception:
-        traceback.print_exc()
-        
-def sell_books(book):       #function to remove from the db the quantity of books sold
-    try:
-        con = sqlite3.connect('bookshop.db')
-        for isbn in book.keys():        #update the book quantity
-            con.execute("UPDATE books SET quantity = quantity - ? WHERE isbn = ?", (book.get(isbn)[0],isbn))
-        con.commit()
-        con.close()
-    except Exception:
-        traceback.print_exc()
-        
-
 def delete_book_stock_level(isbn, upload_folder):       #fuction to allow admins to delete books from the db
     try:
         con = sqlite3.connect('bookshop.db')
@@ -139,7 +80,68 @@ def change_book_quantity(quant, isbn):      #fuction to allow admins to set a di
         con.close()
     except Exception:
         traceback.print_exc()  
+             
         
+def add_books(isbn, name, author, date, description, picture, quantity, retail_price, trade_price):     #add books into the db
+    try:
+        con = sqlite3.connect('bookshop.db')
+        cur = con.cursor()
+        cur.execute("SELECT count(*) FROM books WHERE isbn=?;", (isbn,))        #returns the first row with that input
+        if(int(cur.fetchone()[0]))>0:       #if the a book with that isbn already exists                                               
+            return "The book already exists."
+        else:       #if the a book with that isbn doesn't exist
+            cur.execute("INSERT INTO books (isbn, name, author, date, description, picture, quantity, retail_price, trade_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);", (isbn, name, author, date, description, picture, quantity, retail_price, trade_price))        
+            con.commit()
+            con.close()
+            return True
+    except Exception:       #when there is an issue
+        traceback.print_exc()
+        return "Invalid book."        
+        
+def display_books_checkout(cart):       #function that returns books for the Checkout page
+    try:
+        isbnQuery = ""
+        for isbn in cart.keys():        #concatenate all the isbn's to be able to select their info in the query
+            isbnQuery = isbnQuery + "'" + isbn + "', "
+                
+        con = sqlite3.connect('bookshop.db')
+        cur = con.cursor()
+        cur.execute("SELECT name, isbn, quantity, picture FROM books WHERE isbn IN (" + isbnQuery[:-2] + ");")
+        rows = cur.fetchall()
+        return rows
+    except Exception:
+        traceback.print_exc()
+        
+def books_available(books):      #function that verifies all books to check if there are enough quantity in the db to buy
+    try:    
+        error = []
+        isError = False
+        con = sqlite3.connect('bookshop.db')
+        cur = con.cursor()
+        for isbn in books.keys():
+            cur.execute("SELECT count(*), isbn, quantity FROM books WHERE isbn=? AND quantity<?;", (isbn, books.get(isbn)[0]))
+            book = cur.fetchone()       #gets the first row
+            if(int(book[0]))>0:        #if the book doens't have the necessary quantity of that book, the count is 1, so an error is raised 
+                isError = True
+                error.append([isbn, books.get(isbn)[2], book[2]])       #adds the book info into the error(isbn, name, quantity)
+            
+        if isError: #If there is an error
+            return error        #returns an array of arrays with the books that didn't have enough quantity
+        else:
+            return True
+    except Exception:
+        traceback.print_exc()
+        
+def sell_books(book):       #function to remove from the db the quantity of books sold
+    try:
+        con = sqlite3.connect('bookshop.db')
+        for isbn in book.keys():        #update the book quantity
+            con.execute("UPDATE books SET quantity = quantity - ? WHERE isbn = ?", (book.get(isbn)[0],isbn))
+        con.commit()
+        con.close()
+    except Exception:
+        traceback.print_exc()
+   
     
 def get_price(isbn):        #function to send the price of a book from the db
     try:

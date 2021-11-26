@@ -1,7 +1,7 @@
 import os
 from werkzeug.utils import secure_filename
 
-def upload_file(files, uploadfolder):     # check if the post request has the file part
+def upload_file(files, uploadfolder):     #uploads the file and returns the file name
     #code based on https://stackoverflow.com/questions/44926465/upload-image-in-flask
     if 'picture' not in files:        #if picture doesn't exist
         return False

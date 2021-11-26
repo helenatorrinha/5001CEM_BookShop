@@ -54,16 +54,15 @@
                                 {% if row==line[2]  %}         <!--if the isbn’s are the same -->
                                     <img class="me-1 mb-2" src="static/uploads/{{line[1]}}" alt="Book Picture" width="100" height="160">
                                     <div>                                                                  
-                                        <p>{{line[0]}}</p>
-                                        <p>{{session["cart_books"][row][1]}}£</p>
-                                        <p>Quantity: {{session["cart_books"][row][0]}}</p>
+                                        <p>{{line[0]}}</p>        <!--Name of the book-->
+                                        <p>{{session["cart_books"][row][1]}}£</p>        <!--Book's price-->
+                                        <p>Quantity: {{session["cart_books"][row][0]}}</p>        <!--Book's quantity in the cart-->
                                     </div>    
                                     <a class="ms-auto" href="/delete_book_shopping_cart/{{row}}" >
                                         <img src="static/images/delete_icon.png" alt="Delete icon" width="30" height="30">
                                     </a>
                                 {% endif %}
                             {% endfor %}
-                            
                         </div>
                         {% endfor %}
                   </div>
@@ -71,9 +70,8 @@
                   <div class="footer-modal">
                       <p class="text-end me-4">Total price: {{session["total_price"]}}£</p>
                       <div class="footer-buttons d-flex justify-content-center align-items-center mb-3" >
-                          <button type="button" data-bs-dismiss="modal">Cancel and continue shopping.</button>
+                          <button onclick="location.href = '/delete_shopping_cart';" type="button" data-bs-dismiss="modal">Delete shopping cart.</button>
                           <p class="mb-0 ms-1 me-1"> OR </p>
-                          
                           <!--code from https://stackoverflow.com/questions/16562577/how-can-i-make-a-button-redirect-my-page-to-another-page-->
                           <button onclick="location.href = '/checkout';">Proceed to checkout.</button>
                       </div>

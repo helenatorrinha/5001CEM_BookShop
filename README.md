@@ -1,5 +1,5 @@
-# serranotoh-BookShop
-This project belongs to Helena Torrinha (10613704) for the 5001CEM module. 
+# 5001CEM Software Engineering - BookShop
+This project belongs to Helena Torrinha for the 5001CEM module. 
 This code aims to simulate a book shop where the customers can see the available books and buy them 
 and administrators can change their quantity and add new ones.
 
